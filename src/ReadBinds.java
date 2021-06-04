@@ -15,6 +15,7 @@ public class ReadBinds {
 	
 	public String bindsFileName;
 	private ArrayList<Binding> binds = new ArrayList<Binding>();
+	private ArrayList<Binding> emptyBinds = new ArrayList<Binding>();
 
 	public ReadBinds(String filename) {
 		// TODO Auto-generated method stub
@@ -32,7 +33,42 @@ public class ReadBinds {
 		for(int count = 0; count < this.binds.size(); count++) {
 			System.out.println("Printing Item " + count);
 			this.binds.get(count).print();
+			
+			// if the map is empty, add it to our empty list
+			if(this.binds.get(count).key == "") {
+				this.emptyBinds.add(this.binds.get(count));
+			}
 		}
+		
+		Key key = new Key();
+		ArrayList<String> unused = key.findUnused(binds);
+		
+		for(int count = 0; count < unused.size(); count++) {
+			System.out.println("Found Unused Key: " + unused.get(count));
+		}
+		
+		// fill in empty binds with available keys
+		if(this.emptyBinds.size() > unused.size()) {
+			System.out.println("Unable to fill all keys");
+		} else {
+			for(int x = 0; x < this.emptyBinds.size(); x++) {
+				this.emptyBinds.get(x).key = unused.get(x);
+			}
+		}
+		
+		// merge newly filled empty binds back into binds
+		for(int x = 0; x < this.binds.size(); x++) {
+			if(this.binds.get(x).key == "") {
+				for(int y = 0; y < this.emptyBinds.size(); y++) {
+					if(this.binds.get(x).name == this.emptyBinds.get(y).name) {
+						this.binds.get(x).key = this.emptyBinds.get(y).key;
+					}
+				}
+			}
+		}
+		
+		// rewrite binds xml file
+		
 	}
 	
 	private void parseXml()
@@ -81,10 +117,10 @@ public class ReadBinds {
 	                  for (int i = 0; i < nodeMap.getLength(); i++) {
 	                      Node node = nodeMap.item(i);
 	                     
-	                      if(node.getNodeName() == "device") {
+	                      if(node.getNodeName() == "Device") {
 	                    	  binding.device = node.getNodeValue();
 	                      }
-	                      if(node.getNodeName() == "key") {
+	                      if(node.getNodeName() == "Key") {
 	                    	  binding.key = node.getNodeValue();
 	                      }
 	          
