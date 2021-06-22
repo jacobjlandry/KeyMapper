@@ -19,7 +19,6 @@ public class ReadBinds {
 
 	public ReadBinds(String filename) {
 		// TODO Auto-generated method stub
-		System.out.println("Hello World!");
 		this.bindsFileName = filename;
 		readFile();
 	}
@@ -31,17 +30,17 @@ public class ReadBinds {
 		
 		System.out.println("Binds: " + this.binds.size());
 		for(int count = 0; count < this.binds.size(); count++) {
-			System.out.println("Printing Item " + count);
-			this.binds.get(count).print();
-			
-			// if the map is empty, add it to our empty list
-			if(this.binds.get(count).key == "") {
+			// if the map is empty, add it to our empty list, only for primary maps
+			// this will ignore any extraneous headers we sucked in and all secondary maps, which should be custom
+			if(this.binds.get(count).name == "Primary" && this.binds.get(count).key == "") {
 				this.emptyBinds.add(this.binds.get(count));
 			}
 		}
 		
 		Key key = new Key();
 		ArrayList<String> unused = key.findUnused(binds);
+		
+		System.out.println("Unused: " + unused.size());
 		
 		for(int count = 0; count < unused.size(); count++) {
 			System.out.println("Found Unused Key: " + unused.get(count));
@@ -84,11 +83,8 @@ public class ReadBinds {
 	          // read from a project's resources folder
 	          Document doc = db.parse(is);
 
-	          System.out.println("Root Element :" + doc.getDocumentElement().getNodeName());
-	          System.out.println("------");
-
 	          if (doc.hasChildNodes()) {
-	              printNote(doc.getChildNodes());
+	              getActions(doc.getChildNodes());
 	          }
 
 	      } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -97,22 +93,42 @@ public class ReadBinds {
 
 	  }
 
-	  private void printNote(NodeList nodeList) {
-		  
+	  private void getActions(NodeList nodeList) 
+	  { 
 	      for (int count = 0; count < nodeList.getLength(); count++) {
 
 	          Node tempNode = nodeList.item(count);
+	          
+	          if(tempNode.getNodeName() == "Root") {
+	        	  getActions(tempNode.getChildNodes());
+	          } else {
+		          // make sure it's element node.
+		          if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
+	
+		              Binding binding = new Binding();
+		              binding.name = tempNode.getNodeName();
+		              binding.value = tempNode.getTextContent();
+	
+		              if (tempNode.hasChildNodes()) {
+		            	  binding = getBinding(tempNode.getChildNodes(), binding);
+		            	  
+		            	  this.binds.add(binding);
+		              }
+		          }
+	          }
+	      }
+	  }
+	  
+	  private Binding getBinding(NodeList nodeList, Binding binding) 
+	  {
+		  for (int count = 0; count < nodeList.getLength(); count++) {
+			  Node tempNode = nodeList.item(count);
 
 	          // make sure it's element node.
 	          if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-
-	              Binding binding = new Binding();
-	              binding.name = tempNode.getNodeName();
-	              binding.value = tempNode.getTextContent();
-
-	              if (tempNode.hasAttributes()) {
-
-	                  // get attributes names and values
+	        	  // get the primary binding
+	        	  if(tempNode.getNodeName() == "Primary" && tempNode.hasAttributes()) {
+	        		// get attributes names and values
 	                  NamedNodeMap nodeMap = tempNode.getAttributes();
 	                  for (int i = 0; i < nodeMap.getLength(); i++) {
 	                      Node node = nodeMap.item(i);
@@ -123,22 +139,23 @@ public class ReadBinds {
 	                      if(node.getNodeName() == "Key") {
 	                    	  binding.key = node.getNodeValue();
 	                      }
+	                      
+	                      // check for modifier
+	                      if(tempNode.hasChildNodes()) {
+	                    	  NodeList modNodes = tempNode.getChildNodes();
+	                    	  for(int modifierCount = 0; modifierCount < modNodes.getLength(); modifierCount++) {
+	                    		  if(modNodes.item(modifierCount).getNodeName() == "Modifier") {
+	                    			  binding.modifier = modNodes.item(modifierCount).getNodeValue();
+	                    		  }
+	                    	  }
+	                      }
 	          
 	                  }
-
-	              }
-	              
-	              this.binds.add(binding);
-
-	              if (tempNode.hasChildNodes()) {
-	                  // loop again if has child nodes
-	                  printNote(tempNode.getChildNodes());
-	              }
-
+	        	  }
 	          }
-
-	      }
-
+		  }
+		
+		  return binding;
 	  }
 
 	  // read file from project resource's folder.
