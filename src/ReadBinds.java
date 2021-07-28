@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class ReadBinds {
 	
 	public String bindsFileName;
+	public Document newXml;
 	private ArrayList<Binding> binds = new ArrayList<Binding>();
 	private ArrayList<Binding> emptyBinds = new ArrayList<Binding>();
 
@@ -67,7 +68,7 @@ public class ReadBinds {
 		}
 		
 		// rewrite binds xml file
-		
+		this.writeXml();
 	}
 	
 	private void parseXml()
@@ -93,16 +94,40 @@ public class ReadBinds {
 
 	  }
 
-	  private void getActions(NodeList nodeList) 
-	  { 
-	      for (int count = 0; count < nodeList.getLength(); count++) {
+	private void writeXml() {
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+		
+        try {
+			docBuilder = docFactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+        // root elements
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("company");
+        doc.appendChild(rootElement);
+
+        doc.createElement("staff");
+        rootElement.appendChild(doc.createElement("staff"));
+
+        //...create XML elements, and others...
+
+        this.newXml = doc;
+
+	}
+	
+	private void getActions(NodeList nodeList) { 
+	      for (int count = 0; count < nodeList.getLength(); count++) {
+	
 	          Node tempNode = nodeList.item(count);
 	          
 	          if(tempNode.getNodeName() == "Root") {
-	        	  getActions(tempNode.getChildNodes());
-	          } else {
-		          // make sure it's element node.
+		  getActions(tempNode.getChildNodes());
+	  } else {
+	      // make sure it's element node.
 		          if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
 	
 		              Binding binding = new Binding();
@@ -119,32 +144,32 @@ public class ReadBinds {
 	      }
 	  }
 	  
-	  private Binding getBinding(NodeList nodeList, Binding binding) 
+	private Binding getBinding(NodeList nodeList, Binding binding) 
 	  {
 		  for (int count = 0; count < nodeList.getLength(); count++) {
 			  Node tempNode = nodeList.item(count);
-
+	
 	          // make sure it's element node.
-	          if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-	        	  // get the primary binding
-	        	  if(tempNode.getNodeName() == "Primary" && tempNode.hasAttributes()) {
-	        		// get attributes names and values
-	                  NamedNodeMap nodeMap = tempNode.getAttributes();
-	                  for (int i = 0; i < nodeMap.getLength(); i++) {
-	                      Node node = nodeMap.item(i);
-	                     
-	                      if(node.getNodeName() == "Device") {
-	                    	  binding.device = node.getNodeValue();
-	                      }
-	                      if(node.getNodeName() == "Key") {
-	                    	  binding.key = node.getNodeValue();
-	                      }
-	                      
-	                      // check for modifier
-	                      if(tempNode.hasChildNodes()) {
-	                    	  NodeList modNodes = tempNode.getChildNodes();
-	                    	  for(int modifierCount = 0; modifierCount < modNodes.getLength(); modifierCount++) {
-	                    		  if(modNodes.item(modifierCount).getNodeName() == "Modifier") {
+	  if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
+		  // get the primary binding
+		  if(tempNode.getNodeName() == "Primary" && tempNode.hasAttributes()) {
+			// get attributes names and values
+	          NamedNodeMap nodeMap = tempNode.getAttributes();
+	          for (int i = 0; i < nodeMap.getLength(); i++) {
+	              Node node = nodeMap.item(i);
+	             
+	              if(node.getNodeName() == "Device") {
+	            	  binding.device = node.getNodeValue();
+	              }
+	              if(node.getNodeName() == "Key") {
+	            	  binding.key = node.getNodeValue();
+	              }
+	              
+	              // check for modifier
+	              if(tempNode.hasChildNodes()) {
+	            	  NodeList modNodes = tempNode.getChildNodes();
+	            	  for(int modifierCount = 0; modifierCount < modNodes.getLength(); modifierCount++) {
+	            		  if(modNodes.item(modifierCount).getNodeName() == "Modifier") {
 	                    			  binding.modifier = modNodes.item(modifierCount).getNodeValue();
 	                    		  }
 	                    	  }
@@ -157,10 +182,10 @@ public class ReadBinds {
 		
 		  return binding;
 	  }
-
-	  // read file from project resource's folder.
-	  private static InputStream readXmlFileIntoInputStream(final String fileName) {
-	      return ReadBinds.class.getClassLoader().getResourceAsStream(fileName);
-	  }
+	
+	// read file from project resource's folder.
+	private static InputStream readXmlFileIntoInputStream(final String fileName) {
+	    return ReadBinds.class.getClassLoader().getResourceAsStream(fileName);
+	}
 
 }
