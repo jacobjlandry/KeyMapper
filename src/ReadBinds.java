@@ -1,11 +1,19 @@
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -42,10 +50,6 @@ public class ReadBinds {
 		ArrayList<String> unused = key.findUnused(binds);
 		
 		System.out.println("Unused: " + unused.size());
-		
-		for(int count = 0; count < unused.size(); count++) {
-			System.out.println("Found Unused Key: " + unused.get(count));
-		}
 		
 		// fill in empty binds with available keys
 		if(this.emptyBinds.size() > unused.size()) {
@@ -95,28 +99,61 @@ public class ReadBinds {
 	  }
 
 	private void writeXml() {
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = null;
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
 		
-        try {
-			docBuilder = docFactory.newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
+			Document document = db.newDocument();
+			
+			//<Root PresetName="Custom" MajorVersion="3" MinorVersion="0">
+			Element root = document.createElement("Root");
+			root.setAttribute("PresetName", "Custom");
+			root.setAttribute("MajorVersion", "3");
+			root.setAttribute("MinorVersion", "0");
+			document.appendChild(root);      
+			
+			// TODO make these the actual keys
+			for(int x = 0; x < this.binds.size(); x++) {
+				Binding bind = this.binds.get(x);
+
+				// create element for key binding
+				Element binding = document.createElement(bind.name);
+				// add text content 
+				if(bind.value != "") {
+					binding.setTextContent(bind.value);	
+				}
+				
+				if(bind.name == "MouseReset") {
+					System.out.println(bind.name);
+					System.out.println(bind.type);
+					System.out.println(bind.value);
+					System.out.println(bind.device);
+					System.out.println(bind.key);
+					System.out.println(bind.modifier);
+				}
+				if(bind.type != null) {
+					System.out.print(bind.type);
+				}
+				root.appendChild(binding);
+			}
+			
+			this.newXml = document;
+			
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			
+			 // send DOM to file
+			// TODO use the WriteXml class for this
+            transformer.transform(new DOMSource(document), 
+                                 new StreamResult(new FileOutputStream("src/allkeys2.binds")));
+
+		} catch (ParserConfigurationException | TransformerException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-        // root elements
-        Document doc = docBuilder.newDocument();
-        Element rootElement = doc.createElement("company");
-        doc.appendChild(rootElement);
-
-        doc.createElement("staff");
-        rootElement.appendChild(doc.createElement("staff"));
-
-        //...create XML elements, and others...
-
-        this.newXml = doc;
-
 	}
 	
 	private void getActions(NodeList nodeList) { 
@@ -132,7 +169,9 @@ public class ReadBinds {
 	
 		              Binding binding = new Binding();
 		              binding.name = tempNode.getNodeName();
-		              binding.value = tempNode.getTextContent();
+		              binding.value = tempNode.getTextContent().trim();
+		              
+		              //TODO get the rest of the data
 	
 		              if (tempNode.hasChildNodes()) {
 		            	  binding = getBinding(tempNode.getChildNodes(), binding);
@@ -144,37 +183,38 @@ public class ReadBinds {
 	      }
 	  }
 	  
+	// TODO this is only reading primary right now. not secondary, binding, etc.
+	// TODO we need to form a list of all child elements that we can use
 	private Binding getBinding(NodeList nodeList, Binding binding) 
 	  {
 		  for (int count = 0; count < nodeList.getLength(); count++) {
 			  Node tempNode = nodeList.item(count);
 	
 	          // make sure it's element node.
-	  if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-		  // get the primary binding
-		  if(tempNode.getNodeName() == "Primary" && tempNode.hasAttributes()) {
-			// get attributes names and values
-	          NamedNodeMap nodeMap = tempNode.getAttributes();
-	          for (int i = 0; i < nodeMap.getLength(); i++) {
-	              Node node = nodeMap.item(i);
+			  if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
+				  // get the primary binding
+				  if(tempNode.getNodeName() == "Primary" && tempNode.hasAttributes()) {
+					  // get attributes names and values
+					  NamedNodeMap nodeMap = tempNode.getAttributes();
+					  for (int i = 0; i < nodeMap.getLength(); i++) {
+						  Node node = nodeMap.item(i);
 	             
-	              if(node.getNodeName() == "Device") {
-	            	  binding.device = node.getNodeValue();
-	              }
-	              if(node.getNodeName() == "Key") {
-	            	  binding.key = node.getNodeValue();
-	              }
+						  if(node.getNodeName() == "Device") {
+							  binding.device = node.getNodeValue();
+						  }
+						  if(node.getNodeName() == "Key") {
+							  binding.key = node.getNodeValue();
+						  }
 	              
-	              // check for modifier
-	              if(tempNode.hasChildNodes()) {
-	            	  NodeList modNodes = tempNode.getChildNodes();
-	            	  for(int modifierCount = 0; modifierCount < modNodes.getLength(); modifierCount++) {
-	            		  if(modNodes.item(modifierCount).getNodeName() == "Modifier") {
+						  // check for modifier
+						  if(tempNode.hasChildNodes()) {
+							  NodeList modNodes = tempNode.getChildNodes();
+							  for(int modifierCount = 0; modifierCount < modNodes.getLength(); modifierCount++) {
+								  if(modNodes.item(modifierCount).getNodeName() == "Modifier") {
 	                    			  binding.modifier = modNodes.item(modifierCount).getNodeValue();
-	                    		  }
+								  }
 	                    	  }
 	                      }
-	          
 	                  }
 	        	  }
 	          }
