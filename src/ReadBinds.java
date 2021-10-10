@@ -166,25 +166,42 @@ public class ReadBinds {
 	  } else {
 	      // make sure it's element node.
 		          if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-	
+
+					  // set up new binding
 		              Binding binding = new Binding();
 		              binding.name = tempNode.getNodeName();
-		              binding.value = tempNode.getTextContent().trim();
-		              
-		              //TODO get the rest of the data
-	
+		              binding.content = tempNode.getTextContent().trim();
+
+					  // grab attributes associated with this binding
+					  this.getAttributes(tempNode, binding);
+
 		              if (tempNode.hasChildNodes()) {
-		            	  binding = getBinding(tempNode.getChildNodes(), binding);
-		            	  
-		            	  this.binds.add(binding);
+						  // @TODO we dont need to return to udpate binding, stored as referece
+						  // @TODO we are creating all children as sub-bindings, this won't work as expected any more
+						  // @TODO still add to binds, but also add each child to binds
+		            	  getBinding(tempNode.getChildNodes(), binding);	// add these to children
 		              }
+
+					  this.binds.add(binding);
+
 		          }
 	          }
 	      }
 	  }
+
+	private void getAttributes(Node node, Binding binding)
+	{
+		NamedNodeMap nodeMap = node.getAttributes();
+		for (int i = 0; i < nodeMap.getLength(); i++) {
+			Node attribute = nodeMap.item(i);
+
+			binding.attributes.put(attribute.getNodeName(), attribute.getNodeValue());
+		}
+	}
 	  
 	// TODO this is only reading primary right now. not secondary, binding, etc.
 	// TODO we need to form a list of all child elements that we can use
+	// @TODO this should also create new binds per child, then add them to the binds children array
 	private Binding getBinding(NodeList nodeList, Binding binding) 
 	  {
 		  for (int count = 0; count < nodeList.getLength(); count++) {

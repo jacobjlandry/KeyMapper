@@ -1,15 +1,20 @@
+import java.util.Map;
+import java.util.HashMap;
 
 public class Binding {
 	public String name;
 	public String type;
+	public String content;
 	public String value;
-	public String device;
-	public String key;
-	public String modifier;
+	public Map<String, String> attributes;	// replaces next three
+	public String device;	// not needed
+	public String key;		// not needed
+	public String modifier;	// not needed
+	public Binding[] children;
 	private String xml;
 	
 	public Binding() {
-		
+		this.attributes = new HashMap<String, String>();
 	}
 	
 	// Print for debug
