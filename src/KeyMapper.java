@@ -1,13 +1,18 @@
+import java.util.ArrayList;
+
 public class KeyMapper {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		ReadBinds binds = new ReadBinds("Custom.3.0.binds");
-		//new ReadBinds("allkeys.binds");
-	}
+		// TODO Clean up
+		// TODO Difference between List<String> and ArrayList<String> and String[] and why do i use each one?
+		// TODO Tests
+		// TODO Comments
+		
+		KeyBindsFile binds = new KeyBindsFile("Custom.3.0.binds");
+		KeyMaps maps = new KeyMaps();
 
-	public static String hello(String first_name, String last_name) {
-		return "Hello " + first_name + " " + last_name + ", how are you doing today?";
+		maps.setUsed((ArrayList<String>) binds.getBinds());
+		binds.replaceContents(maps.getDiffs(), maps.getModifiers());
 	}
 
 }
