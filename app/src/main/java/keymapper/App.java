@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class App {
-    // TODO Tests
 	// TODO add UI
 
 	// path to the file we want to parse
