@@ -1,3 +1,4 @@
+package keymapper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -40,6 +41,8 @@ public class KeyBindsFile {
 		while (m.find()) {
 		  allMatches.add(m.group().replace("Key=\"", "").replace("\"",""));
 		}
+
+        System.out.println(allMatches.size());
 
         return allMatches;
     }
@@ -107,7 +110,7 @@ public class KeyBindsFile {
 
         // write to file
         try {
-            FileWriter bindsFileWriter = new FileWriter(System.getProperty("user.dir") + "/src/binds/KeyMapperv1.0.binds");
+            FileWriter bindsFileWriter = new FileWriter(System.getProperty("user.dir") + "/app/src/binds/KeyMapperv1.0.binds");
             bindsFileWriter.write(this.bindsFileContents);
             bindsFileWriter.close();
             System.out.println("Successfully wrote to the file.");
