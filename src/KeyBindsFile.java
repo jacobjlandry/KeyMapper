@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class KeyBindsFile {
     // file we are reading
     public String bindsFileName;
-    private String bindsFilePath;
+    
     // contents of file
     private String bindsFileContents;
 
@@ -22,7 +22,6 @@ public class KeyBindsFile {
     public KeyBindsFile(String filename)
     {
         this.bindsFileName = filename;
-        this.bindsFilePath = System.getProperty("user.dir") + "/src/binds/" + this.bindsFileName;
 
         this.readFile();
     }
@@ -77,7 +76,7 @@ public class KeyBindsFile {
  
         try
         {
-            content = new String ( Files.readAllBytes( Paths.get(this.bindsFilePath) ) );
+            content = new String ( Files.readAllBytes( Paths.get(this.bindsFileName) ) );
         } 
         catch (IOException e) 
         {
@@ -94,7 +93,7 @@ public class KeyBindsFile {
     {
         // Create file if it doesn't exist
         try {
-            File newBindsFile = new File(this.bindsFilePath + ".dup");
+            File newBindsFile = new File(this.bindsFileName + ".dup");
             if (newBindsFile.createNewFile()) {
                 System.out.println("File created: " + newBindsFile.getName());
             } else {
@@ -103,17 +102,21 @@ public class KeyBindsFile {
         } catch (IOException e) {
             System.out.println("An error occurred creating the file.");
             e.printStackTrace();
+            return;
         }
 
         // write to file
         try {
-            FileWriter bindsFileWriter = new FileWriter(this.bindsFilePath + ".dup");
+            FileWriter bindsFileWriter = new FileWriter(System.getProperty("user.dir") + "/src/binds/KeyMapperv1.0.binds");
             bindsFileWriter.write(this.bindsFileContents);
             bindsFileWriter.close();
             System.out.println("Successfully wrote to the file.");
+            System.out.println("You can now move KeyMapperv1.0.binds to your Elite Dangerous key-binds location.");
+            System.out.println("Remember to back up your old file first, to be safe!");
         } catch (IOException e) {
             System.out.println("An error occurred writing the file.");
             e.printStackTrace();
+            return;
         }
     }
 }
