@@ -22,7 +22,7 @@ public class KeyBindsFile {
     public KeyBindsFile(String filename)
     {
         this.bindsFileName = filename;
-        this.bindsFilePath = System.getProperty("user.dir") + "/src/" + this.bindsFileName;
+        this.bindsFilePath = System.getProperty("user.dir") + "/src/binds/" + this.bindsFileName;
 
         this.readFile();
     }
