@@ -1,15 +1,19 @@
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class KeyMapper {
 
 	// TODO Tests
-	// TODO allow input file
 	// TODO add UI
+
+	// path to the file we want to parse
+	private static String filePath;
+
 	public static void main(String[] args) {
 		intro();
 
 		// read key binds file from Elite Dangerous
-		KeyBindsFile binds = new KeyBindsFile("/Users/jacoblandry/Documents/Custom.3.0.binds");
+		KeyBindsFile binds = new KeyBindsFile(filePath);
 		// create default map of keys
 		KeyMaps maps = new KeyMaps();
 
@@ -27,7 +31,15 @@ public class KeyMapper {
 		System.out.println(" |                 By Jacob Landry                | ");
 		System.out.println(" +------------------------------------------------+ ");
 		System.out.println("");
-		System.out.println("Reading input file from binds folder. A new, completely filled file will be stored in the binds folder in this project.");
+		System.out.println("Please type the absolute path of the file you want to replace");
+		System.out.println("(Note: we will not edit this file, we will create a new file that you can use to replace the existing on yoru own)");
+		
+		// collect file from user
+		System.out.println("file: ");
+		Scanner inputScanner = new Scanner(System.in);
+		filePath = inputScanner.nextLine();
+		inputScanner.close();
+		System.out.println("A new, completely filled file will be stored in the binds folder in this project.");
 	}
 
 }
