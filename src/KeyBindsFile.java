@@ -9,11 +9,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class KeyBindsFile {
-    
+    // file we are reading
     public String bindsFileName;
     private String bindsFilePath;
+    // contents of file
     private String bindsFileContents;
 
+    /**
+     * constructor
+     * @param filename
+     */
     public KeyBindsFile(String filename)
     {
         this.bindsFileName = filename;
@@ -22,6 +27,11 @@ public class KeyBindsFile {
         this.readFile();
     }
 
+    /**
+     * pull a list of all used keys from the file
+     * TODO this is where we should check for modifiers
+     * @return List<String>
+     */
     public List<String> getBinds()
     {
         // get all Key=".*" records
@@ -35,6 +45,13 @@ public class KeyBindsFile {
         return allMatches;
     }
 
+    /**
+     * replace empty keys with unused keys (including modifiers)
+     * write to file
+     * 
+     * @param binds
+     * @param modifiers
+     */
     public void replaceContents(ArrayList<String> binds, String[] modifiers)
     {
         for(int x = 0; x < binds.size(); x++) {
@@ -51,6 +68,9 @@ public class KeyBindsFile {
         this.writeFile();
     }
 
+    /**
+     * read file into memory
+     */
     private void readFile()
     {
         String content = "";
@@ -67,6 +87,9 @@ public class KeyBindsFile {
         this.bindsFileContents = content;
     }
 
+    /**
+     * write the file to hard drive
+     */
     private void writeFile()
     {
         // save text to file
