@@ -3,13 +3,8 @@ import java.util.ArrayList;
 public class KeyMapper {
 
 	public static void main(String[] args) {
-		// TODO Clean up
-		// TODO Difference between List<String> and ArrayList<String> and String[] and why do i use each one?
 		// TODO Tests
-		// TODO Comments
-		// TODO README
 		// TODO allow input file
-		// TODO clean up output messaging
 		// TODO add UI
 
 		// read key binds file from Elite Dangerous

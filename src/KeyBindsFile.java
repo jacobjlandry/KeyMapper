@@ -29,7 +29,7 @@ public class KeyBindsFile {
 
     /**
      * pull a list of all used keys from the file
-     * TODO this is where we should check for modifiers
+     * TODO this is where we should check for modifiers instead of just keys
      * @return List<String>
      */
     public List<String> getBinds()
@@ -92,26 +92,28 @@ public class KeyBindsFile {
      */
     private void writeFile()
     {
-        // save text to file
-		try {
-			File myObj = new File(System.getProperty("user.dir") + "/src/" + this.bindsFileName + ".dup");
-			if (myObj.createNewFile()) {
-			  System.out.println("File created: " + myObj.getName());
-			} else {
-			  System.out.println("File already exists.");
-			}
-		  } catch (IOException e) {
-			System.out.println("An error occurred.");
-			e.printStackTrace();
-		  }
-		  try {
-			FileWriter myWriter = new FileWriter(System.getProperty("user.dir") + "/src/" + this.bindsFileName + ".dup");
-			myWriter.write(this.bindsFileContents);
-			myWriter.close();
-			System.out.println("Successfully wrote to the file.");
-		  } catch (IOException e) {
-			System.out.println("An error occurred.");
-			e.printStackTrace();
-		  }
+        // Create file if it doesn't exist
+        try {
+            File newBindsFile = new File(this.bindsFilePath + ".dup");
+            if (newBindsFile.createNewFile()) {
+                System.out.println("File created: " + newBindsFile.getName());
+            } else {
+                System.out.println("File already exists, overwriting.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred creating the file.");
+            e.printStackTrace();
+        }
+
+        // write to file
+        try {
+            FileWriter bindsFileWriter = new FileWriter(this.bindsFilePath + ".dup");
+            bindsFileWriter.write(this.bindsFileContents);
+            bindsFileWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred writing the file.");
+            e.printStackTrace();
+        }
     }
 }
