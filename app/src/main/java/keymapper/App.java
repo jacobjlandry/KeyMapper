@@ -17,6 +17,7 @@ public class App {
 
 		// read key binds file from Elite Dangerous
 		KeyBindsFile binds = new KeyBindsFile(filePath);
+		
 		// create default map of keys
 		KeyMaps maps = new KeyMaps();
 

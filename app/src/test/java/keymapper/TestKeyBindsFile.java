@@ -31,7 +31,7 @@ public class TestKeyBindsFile {
 
         // ensure the new file is full
         KeyBindsFile file2 = new KeyBindsFile(System.getProperty("user.dir") + "/src/binds/KeyMapperv1.0.binds");
-        assert(file2.getBinds().size() == 355);
+        assert(file2.getBinds().size() == 865);
     }
 
 }

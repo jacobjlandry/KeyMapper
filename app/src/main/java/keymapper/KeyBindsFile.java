@@ -57,13 +57,19 @@ public class KeyBindsFile {
     public void replaceContents(ArrayList<String> binds, String[] modifiers)
     {
         for(int x = 0; x < binds.size(); x++) {
-			bindsFileContents = bindsFileContents.replaceFirst("<Primary Device=\"\\Q{\\ENoDevice\\Q}\\E\" Key=\"\" />", "<Primary Device=\"Keyboard\" Key=\"" + binds.get(x) + "\" />");
+			bindsFileContents = bindsFileContents.replaceFirst("Device=\"\\Q{\\ENoDevice\\Q}\\E\" Key=\"\" />", "Device=\"Keyboard\" Key=\"" + binds.get(x) + "\" />");
 		}
 		// add modifiers
 		for(int y = 0; y < modifiers.length; y++) {
 			String modifier = modifiers[y];
 			for(int x = 0; x < binds.size(); x++) {
-				bindsFileContents = bindsFileContents.replaceFirst("<Primary Device=\"\\Q{\\ENoDevice\\Q}\\E\" Key=\"\" />", "<Primary Device=\"Keyboard\" Key=\"" + binds.get(x) + "\">\r\n			<Modifier Device=\"Keyboard\" Key=\"" + modifier + "\" />\r\n		</Primary>");
+                Matcher m = Pattern.compile("<Primary Device=\"\\Q{\\ENoDevice\\Q}\\E\" Key=\"\" />")
+                    .matcher(this.bindsFileContents);
+		        if (m.find()) {
+				    bindsFileContents = bindsFileContents.replaceFirst("<Primary Device=\"\\Q{\\ENoDevice\\Q}\\E\" Key=\"\" />", "<Primary Device=\"Keyboard\" Key=\"" + binds.get(x) + "\">\r\n			<Modifier Device=\"Keyboard\" Key=\"" + modifier + "\" />\r\n		</Primary>");
+                } else {
+                    bindsFileContents = bindsFileContents.replaceFirst("<Secondary Device=\"\\Q{\\ENoDevice\\Q}\\E\" Key=\"\" />", "<Secondary Device=\"Keyboard\" Key=\"" + binds.get(x) + "\">\r\n			<Modifier Device=\"Keyboard\" Key=\"" + modifier + "\" />\r\n		</Secondary>");
+                }
 			}
 		}
 
